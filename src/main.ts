@@ -1,5 +1,9 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { CharacterControls } from "./class/characterContorols";
+import { KeyDisplay } from "./class/keyDisplay";
 
 function main() {
   const scene = new THREE.Scene();
@@ -11,7 +15,7 @@ function main() {
     1, //view frustrum near
     1500 // view frustrum far
   );
-  camera.position.set(-35, 70, 100);
+  camera.position.set(5, 5, 0);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const renderer = new THREE.WebGLRenderer({
@@ -30,20 +34,34 @@ function main() {
   window.addEventListener("resize", onWindowResize);
 
   function createFloor() {
+    // const textureLoader = new THREE.TextureLoader();
+    // const sandBaseColor = textureLoader.load("./src/imgs/Sand_COLOR.jpg");
+    // const sandNormalMap = textureLoader.load("./src/imgs/Sand_NRM.jpg");
+    // const sandHeightMap = textureLoader.load("./src/imgs/Sand_DISP.jpg");
+    // const sandAmbientOcclusion = textureLoader.load("./src/imgs/Sand_OCC.jpg");
+
     let pos = { x: 0, y: -1, z: 3 };
     let scale = { x: 1000, y: 2, z: 1000 };
 
-    let blockPlane = new THREE.Mesh(
+    let floor = new THREE.Mesh(
       new THREE.BoxGeometry(),
-      new THREE.MeshPhongMaterial({ color: 0x60a090 })
+      new THREE.MeshStandardMaterial({
+        color: 0x509030,
+        // map: sandBaseColor,
+        // normalMap: sandNormalMap,
+        // displacementMap: sandHeightMap,
+        // displacementScale: 0.1,
+        // aoMap: sandAmbientOcclusion,
+      })
     );
-    blockPlane.position.set(pos.x, pos.y, pos.z);
-    blockPlane.scale.set(scale.x, scale.y, scale.z);
-    blockPlane.castShadow = true;
-    blockPlane.receiveShadow = true;
-    scene.add(blockPlane);
+    floor.position.set(pos.x, pos.y, pos.z);
+    floor.scale.set(scale.x, scale.y, scale.z);
+    floor.castShadow = true;
+    floor.receiveShadow = true;
+    // floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
 
-    blockPlane.userData.ground = true;
+    floor.userData.ground = true;
   }
 
   createFloor();
@@ -74,10 +92,11 @@ function main() {
   sphere2.position.x = 0;
   sphere3.position.x = -40;
 
-  const sun = new THREE.DirectionalLight(0xffffa0, 1);
   // const pointLightHelper = new THREE.PointLightHelper(pointLight);
-  // const ambientLight = new THREE.AmbientLight(0xff303030);
+  const ambientLight = new THREE.AmbientLight(0xff505050);
+  scene.add(ambientLight);
   // const gridHelper = new THREE.GridHelper(1000, 100);
+  const sun = new THREE.DirectionalLight(0xffffff, 1);
   sun.position.set(30, 50, 30);
   sun.castShadow = true;
   sun.shadow.mapSize.width = 20000;
@@ -106,14 +125,91 @@ function main() {
 
   Array(400).fill(null).forEach(addStar);
 
+  var characterControls: CharacterControls;
+
+  const dracoLoader = new DRACOLoader();
+  const gltfLoader = new GLTFLoader();
+  dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/");
+  dracoLoader.setDecoderConfig({ type: "js" });
+  gltfLoader.setDRACOLoader(dracoLoader);
+
+  gltfLoader.load("/src/model/starter-scene.glb", function (gltf) {
+    const model = gltf.scene;
+    model.traverse(function (object: any) {
+      if (object.isMesh) object.castShadow = true;
+    });
+    model.position.set(50, 0, 50);
+    scene.add(model);
+  });
+
+  gltfLoader.load(
+    "/src/model/Soldier.glb",
+    function (gltf) {
+      const model = gltf.scene;
+      model.traverse(function (object: any) {
+        if (object.isMesh) object.castShadow = true;
+      });
+      scene.add(model);
+
+      const gltfAnimations: THREE.AnimationClip[] = gltf.animations;
+      const mixer = new THREE.AnimationMixer(model);
+      const animationsMap: Map<string, THREE.AnimationAction> = new Map();
+      gltfAnimations
+        .filter((a) => a.name != "TPose")
+        .forEach((a: THREE.AnimationClip) => {
+          animationsMap.set(a.name, mixer.clipAction(a));
+        });
+
+      characterControls = new CharacterControls(
+        model,
+        mixer,
+        animationsMap,
+        controls,
+        camera,
+        "Idle"
+      );
+    },
+    undefined,
+    (error) => {
+      console.error(error);
+    }
+  );
+
+  const keysPressed = {};
+  const keyDisplayQueue = new KeyDisplay();
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      keyDisplayQueue.down(event.key);
+      if (event.shiftKey && characterControls) {
+        characterControls.switchRunToggle();
+      } else {
+        (keysPressed as any)[event.key.toLowerCase()] = true;
+      }
+    },
+    false
+  );
+  document.addEventListener(
+    "keyup",
+    (event) => {
+      keyDisplayQueue.up(event.key);
+      (keysPressed as any)[event.key.toLowerCase()] = false;
+    },
+    false
+  );
+
+  const clock = new THREE.Clock();
+
   function animate() {
     dragObject();
-
-    requestAnimationFrame(animate);
-
+    let mixerUpdateDelta = clock.getDelta();
+    if (characterControls) {
+      characterControls.update(mixerUpdateDelta, keysPressed);
+    }
     controls.update();
 
     renderer.render(scene, camera);
+    requestAnimationFrame(animate);
   }
 
   const raycaster = new THREE.Raycaster();
@@ -138,8 +234,8 @@ function main() {
   }
 
   window.addEventListener("click", (event) => {
-    const { clientX, clientY, currentTarget } = event;
-    console.log(clientX, clientY, currentTarget);
+    // const { clientX, clientY, currentTarget } = event;
+    // console.log(clientX, clientY, currentTarget);
     if (draggable) {
       draggable = null as any;
       return;
@@ -150,7 +246,7 @@ function main() {
       -(event.clientY / window.innerHeight) * 2 + 1
     );
     raycaster.setFromCamera(clickMouse, camera);
-
+    console.log(scene.children);
     const intersects = raycaster.intersectObjects(scene.children);
     if (intersects.length > 0 && intersects[0].object.userData.draggable) {
       draggable = intersects[0].object;
