@@ -1,7 +1,13 @@
 import WEBGL from "three/examples/jsm/capabilities/WebGL";
-import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { PerspectiveCamera, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { createLine, createTexts } from "./drawing";
+import {
+  scene,
+  createLine,
+  createTexts,
+  createShere,
+  createParticles,
+} from "./drawing";
 
 async function main() {
   //Check capabilities of WEBGL=================================================
@@ -17,7 +23,6 @@ async function main() {
 
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
   const renderer = new WebGLRenderer({ canvas, antialias: true });
-  const scene = new Scene();
   const camera = new PerspectiveCamera(
     45,
     window.innerWidth / window.innerHeight,
@@ -34,8 +39,8 @@ async function main() {
 
   //Models======================================================================
 
-  createLine(scene);
-  createTexts(scene, "HELLO WORLD");
+  createShere({ particle: true });
+  createParticles();
 
   //Functions===================================================================
 

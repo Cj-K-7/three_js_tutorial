@@ -6,11 +6,50 @@ import {
   Line,
   MeshBasicMaterial,
   Mesh,
+  SphereGeometry,
+  PointsMaterial,
+  Points,
+  BufferAttribute,
 } from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 
-export function createLine(scene: Scene) {
+export const scene = new Scene();
+
+export function createParticles() {
+  const geometry = new BufferGeometry();
+  const material = new PointsMaterial({ size: 0.005 });
+  const counts = 1000;
+
+  const positions = new Float32Array(counts * 3);
+  const scale = Math.random() * 500;
+  for (let i = 0; i < counts * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * scale;
+  }
+
+  geometry.setAttribute("position", new BufferAttribute(positions, 3));
+
+  const particles = new Points(geometry, material);
+
+  scene.add(particles);
+  return particles;
+}
+
+//create the Shere model
+export function createShere(options: { particle: boolean }) {
+  const geometry = new SphereGeometry(10, 20, 20);
+  const material = options.particle
+    ? new PointsMaterial({ size: 0.05 })
+    : new MeshBasicMaterial({ color: 0x00ff00 });
+  const shere = options.particle
+    ? new Points(geometry, material)
+    : new Mesh(geometry, material);
+
+  scene.add(shere);
+  return shere;
+}
+
+export function createLine() {
   const points: Vector3[] = [
     new Vector3(-10, -10, -10),
     new Vector3(10, -10, -10),
@@ -26,7 +65,7 @@ export function createLine(scene: Scene) {
   return line;
 }
 
-export function createTexts(scene: Scene, value: string) {
+export function createTexts(value: string) {
   const fontLoader = new FontLoader();
   fontLoader.load("./fonts/helvetiker_regular.typeface.json", (font) => {
     const geometry = new TextGeometry(value, {
