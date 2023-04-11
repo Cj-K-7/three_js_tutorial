@@ -1,5 +1,5 @@
+import Director from "./class/director";
 import {
-  Scene,
   Vector3,
   BufferGeometry,
   LineBasicMaterial,
@@ -13,8 +13,6 @@ import {
 } from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
-
-export const scene = new Scene();
 
 export function createParticles() {
   const geometry = new BufferGeometry();
@@ -31,22 +29,22 @@ export function createParticles() {
 
   const particles = new Points(geometry, material);
 
-  scene.add(particles);
+  Director.add(particles);
   return particles;
 }
 
-//create the Shere model
-export function createShere(options: { particle: boolean }) {
+//create the Sphere model
+export function createSphere(options: { particle: boolean }) {
   const geometry = new SphereGeometry(10, 20, 20);
   const material = options.particle
     ? new PointsMaterial({ size: 0.05 })
     : new MeshBasicMaterial({ color: 0x00ff00 });
-  const shere = options.particle
+  const sphere = options.particle
     ? new Points(geometry, material)
     : new Mesh(geometry, material);
 
-  scene.add(shere);
-  return shere;
+  Director.add(sphere);
+  return sphere;
 }
 
 export function createLine() {
@@ -60,7 +58,7 @@ export function createLine() {
   const material = new LineBasicMaterial({ color: 0x0000ff });
   const line = new Line(geometry, material);
 
-  scene.add(line);
+  Director.add(line);
 
   return line;
 }
@@ -80,6 +78,6 @@ export function createTexts(value: string) {
     });
     const material = new MeshBasicMaterial({ color: 0xffffff });
     const text = new Mesh(geometry, material);
-    scene.add(text);
+    Director.add(text);
   });
 }
