@@ -1,6 +1,7 @@
 import WEBGL from "three/examples/jsm/capabilities/WebGL";
-import Director from "./class/director";
-import { createSphere, createParticles } from "./drawing";
+import director from "./class/director";
+import camera from "./class/camera";
+import { createHighQualitySphere, addLight } from "./drawing";
 
 async function main() {
   //Check capabilities of WEBGL=================================================
@@ -12,22 +13,21 @@ async function main() {
   }
 
   //Models======================================================================
-
-  createSphere({ particle: true });
-  createParticles();
+  addLight();
+  createHighQualitySphere(director.renderer);
 
   //Functions===================================================================
 
   function animate() {
-    Director.render();
+    director.render(camera);
     requestAnimationFrame(animate);
   }
 
   //Utills===================================================================
 
-  function windowSizer() {
-    Director.resize();
-    window.addEventListener("resize", Director.resize, false);
+  function addWindowSizer() {
+    director.resize();
+    window.addEventListener("resize", director.resize, false);
   }
 
   //LifeCycles==================================================================
@@ -35,8 +35,9 @@ async function main() {
    * intialize WebGL with THREE.js
    **/
   async function init() {
-    windowSizer();
-    Director.addOrbitControl();
+    addWindowSizer();
+    director.addHelpers({});
+    camera.addOrbitControl(director.canvas);
   }
 
   /**
@@ -44,7 +45,6 @@ async function main() {
    */
   async function update() {
     animate();
-    Director.render();
   }
 
   try {

@@ -12,6 +12,6 @@ interface CameraSetting {
 }
 
 interface HelperOption {
-  axes: boolean;
-  grid: boolean;
+  axes?: boolean;
+  grid?: boolean;
 }
