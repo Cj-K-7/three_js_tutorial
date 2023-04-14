@@ -20,3 +20,4 @@ export const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.outputEncoding = sRGBEncoding;
 renderer.toneMapping = ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
+renderer.setPixelRatio(devicePixelRatio);

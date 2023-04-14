@@ -1,4 +1,3 @@
-import { renderer } from "../core";
 import WEBGL from "three/examples/jsm/capabilities/WebGL";
 
 async function checkCapabilityOfDoc() {
@@ -20,17 +19,7 @@ async function checkCapabilityOfDoc() {
  */
 async function useWindowUtils() {
   //decalre
-  function addWindowResizHandler(): void {
-    const onResize = (): void => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-    };
-    onResize();
-    window.addEventListener("resize", onResize, false);
-  }
-
   //action
-  addWindowResizHandler();
 }
 
 async function useUtility() {

@@ -10,6 +10,15 @@ class Director {
   constructor() {
     this.mainCamera = new MovieCamera();
     this.currentCamera = this.mainCamera;
+
+    const onResize = (): void => {
+      this.currentCamera.aspect = innerWidth / innerHeight;
+      this.currentCamera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    };
+    onResize();
+    addEventListener("resize", onResize, false);
+
     //on development
     if (import.meta.env.DEV) {
       this.addHelpers(1000);

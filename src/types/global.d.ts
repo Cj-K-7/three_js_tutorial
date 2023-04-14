@@ -1,7 +1,7 @@
 /**
  * 3 axis value for [ x , y , z]
  */
-type Axes = [number, number, number];
+type Coordinate = [x: number, y: number, z: number];
 
 /**
  * interface for a camera settings object

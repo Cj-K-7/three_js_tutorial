@@ -128,3 +128,11 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+canvas {
+  width: 100vw;
+  height: 100vh;
+}
+svg {
+  position: absolute;
+  visibility: hidden;
+}

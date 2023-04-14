@@ -1,7 +1,9 @@
 import director from "./class/director";
 import ModelCreator from "./class/objectSystem/modelCreator";
-import useUtility from "./utility/utility";
 import Gaffer from "./class/lightSystem/mainLight";
+import "./class/particleSystem/particle";
+import useUtility from "./utility/utility";
+import MovingParticle from "./class/particleSystem/particle";
 
 const modelCreator = new ModelCreator();
 const gaffer = new Gaffer();
@@ -13,9 +15,10 @@ const textureList = [
 
 async function main() {
   //== Models ==================================================================
-  const ball = modelCreator.createShpere();
-  ball.addTexture(textureList[0]);
-
+  // const ball = modelCreator.createShpere();
+  // ball.addTexture(textureList[0]);
+  const particle = new MovingParticle();
+  particle.render();
   //== LifeCycles ==============================================================
   /**
    * intialize WebGL with THREE.js
@@ -29,6 +32,7 @@ async function main() {
    */
   async function animate() {
     director.filming();
+    particle.animate();
     requestAnimationFrame(animate);
   }
 
