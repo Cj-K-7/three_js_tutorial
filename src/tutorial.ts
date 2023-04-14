@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { CharacterControls } from "./class/characterContorols";
-import { KeyDisplay } from "./class/keyDisplay";
+import { CharacterControls } from "./class/physic/characterContorols";
+import { KeyDisplay } from "./class/physic/keyBinding";
 
 function main() {
   const scene = new THREE.Scene();

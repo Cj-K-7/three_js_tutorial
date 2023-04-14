@@ -1,55 +1,41 @@
-import WEBGL from "three/examples/jsm/capabilities/WebGL";
 import director from "./class/director";
-import camera from "./class/camera";
-import { createHighQualitySphere, addLight } from "./drawing";
+import ModelCreator from "./class/objectSystem/modelCreator";
+import useUtility from "./utility/utility";
+import Gaffer from "./class/lightSystem/mainLight";
+
+const modelCreator = new ModelCreator();
+const gaffer = new Gaffer();
+const textureList = [
+  "blue_photo_studio_4k.hdr",
+  "industrial_sunset_puresky_4k.hdr",
+  "syferfontein_18d_clear_puresky_4k.hdr",
+];
 
 async function main() {
-  //Check capabilities of WEBGL=================================================
-  const isWebGLAvailable = WEBGL.isWebGLAvailable();
-  if (!isWebGLAvailable) {
-    const errorMessage = WEBGL.getWebGLErrorMessage();
-    document.appendChild(errorMessage);
-    return;
-  }
+  //== Models ==================================================================
+  const ball = modelCreator.createShpere();
+  ball.addTexture(textureList[0]);
 
-  //Models======================================================================
-  addLight();
-  createHighQualitySphere(director.renderer);
-
-  //Functions===================================================================
-
-  function animate() {
-    director.render(camera);
-    requestAnimationFrame(animate);
-  }
-
-  //Utills===================================================================
-
-  function addWindowSizer() {
-    director.resize();
-    window.addEventListener("resize", director.resize, false);
-  }
-
-  //LifeCycles==================================================================
+  //== LifeCycles ==============================================================
   /**
    * intialize WebGL with THREE.js
    **/
   async function init() {
-    addWindowSizer();
-    director.addHelpers({});
-    camera.addOrbitControl(director.canvas);
+    await useUtility();
   }
 
   /**
-   * update 3D rendering
+   * start update 3D rendering display
    */
-  async function update() {
-    animate();
+  async function animate() {
+    director.filming();
+    requestAnimationFrame(animate);
   }
 
+  //== Do Actions ==============================================================
   try {
     await init();
-    await update();
+    await animate();
   } catch (error) {
     console.error(error);
   }

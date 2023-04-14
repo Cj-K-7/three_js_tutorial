@@ -1,39 +1,49 @@
 import { PerspectiveCamera } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-const initialCameraSetting: CameraSetting = {
-  position: [200, 200, 200],
-  point: [0, 0, 0],
-};
+class MovieCamera extends PerspectiveCamera {
+  private orbitControls?: OrbitControls;
+  private initialSettings: CameraSetting = {
+    position: [200, 250, 200],
+    point: [0, 0, 0],
+  };
 
-class AppCamera extends PerspectiveCamera {
   constructor() {
-    super(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.setPosition();
+    super(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+    this.setPosition(...this.initialSettings.position);
+
+    //on development
+    if (import.meta.env.DEV) {
+      this.orbitControls = new OrbitControls(
+        this,
+        document.getElementById("canvas")!
+      );
+      this.orbitControls.dampingFactor = 1;
+      this.orbitControls.enableDamping = true;
+    }
+  }
+
+  public update(): void {
+    if (this.orbitControls) {
+      this.orbitControls.update();
+    }
   }
 
   /**
-   * Setting Camera Position & Point
-   * @param position position & point ( vertor 3 )
+   * Setting Camera Position
+   * @param position position ( vertor 3 )
    */
-  public setPosition(position: Axis = initialCameraSetting.position): void {
-    const [x, y, z] = position;
-    this.position.set(x, y, z);
+  public setPosition(...position: Axes): void {
+    this.position.set(...position);
   }
 
   /**
    * Setting Camera Point
    * @param point point ( vertor 3 )
    */
-
-  /**
-   * Add orbit controls
-   */
-  public addOrbitControl(domElement: HTMLCanvasElement) {
-    new OrbitControls(this, domElement);
+  public setPoint(...position: Axes): void {
+    this.position.set(...position);
   }
 }
 
-const camera = new AppCamera();
-
-export default camera;
+export default MovieCamera;

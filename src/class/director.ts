@@ -1,82 +1,45 @@
-import {
-  WebGLRenderer,
-  sRGBEncoding,
-  Scene,
-  Camera,
-  Object3D,
-  AxesHelper,
-  GridHelper,
-  ACESFilmicToneMapping,
-} from "three";
+import { renderer, scene } from "../core";
+import { AxesHelper, GridHelper } from "three";
+import MovieCamera from "./camera";
 
-class AppDirector {
-  public canvas: HTMLCanvasElement;
-  public scene: Scene;
-  public renderer: WebGLRenderer;
+//== Director ==================================================================
+class Director {
+  private currentCamera: MovieCamera;
+  private mainCamera: MovieCamera;
 
-  /**
-   * Construct the WEBGL Renderer with base settings
-   *
-   * you can use the canvas you create.
-   *
-   * with no parameter,
-   * constructor will automatically find canvas that has id = 'canvas' , or it doesn't exist,
-   * create one.
-   * @param canvas
-   */
-  constructor(
-    canvas: HTMLCanvasElement = document.getElementById(
-      "canvas"
-    ) as HTMLCanvasElement
-  ) {
-    this.canvas = canvas || document.createElement("canvas");
-    this.scene = new Scene();
-    this.renderer = new WebGLRenderer({ canvas: this.canvas, antialias: true });
+  constructor() {
+    this.mainCamera = new MovieCamera();
+    this.currentCamera = this.mainCamera;
+    //on development
+    if (import.meta.env.DEV) {
+      this.addHelpers(1000);
+    }
 
-    this.resize();
     return this;
   }
-
-  /**
-   * Resize the canvas to fit the window.
-   */
-  public resize(): void {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-  }
-
-  //====== ENCODING ============================================================
-
-  public setEncodingQuality(): void {
-    this.renderer.outputEncoding = sRGBEncoding;
-    this.renderer.toneMapping = ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.25;
-  }
-
-  //====== SCENE ===============================================================
-
-  public add(...objects: Object3D[]): void {
-    this.scene.add(...objects);
-  }
-
-  //====== HELPERS =============================================================
 
   /**
    * Add helpers for debugging
    * @param option
    */
-  public addHelpers(option: HelperOption): void {
-    const { grid, axes } = option;
-    if (grid) this.add(new GridHelper());
-    if (axes) this.add(new AxesHelper());
+  public addHelpers(size: number): void {
+    scene.add(new GridHelper(size));
+    scene.add(new AxesHelper(size / 2));
   }
 
-  //====== RENDER ============================================================
-  public render(camera: Camera): void {
-    this.renderer.render(this.scene, camera);
+  public changeCamera(camera: MovieCamera = this.mainCamera): void {
+    this.currentCamera = camera;
+  }
+  /**
+   * filming Scene with `camera`
+   * @param camera
+   */
+  public filming(): void {
+    renderer.render(scene, this.currentCamera);
+    this.currentCamera.update();
   }
 }
 
-const director = new AppDirector();
+const director = new Director();
 
 export default director;
