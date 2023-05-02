@@ -22,7 +22,7 @@ class TexturedMesh extends Mesh<BufferGeometry, MeshStandardMaterial> {
    * @param textureFile
    * @param material
    */
-  addTexture(textureFile: string): void {
+  addEnvmapTexture(textureFile: string): void {
     const onLoad = (dataTexture: DataTexture) => {
       const envMap = envmapLoader.fromCubemap(dataTexture as any).texture;
       const normalMap = new CanvasTexture(new FlakesTexture());
@@ -37,16 +37,11 @@ class TexturedMesh extends Mesh<BufferGeometry, MeshStandardMaterial> {
     // const onProgress = (event: ProgressEvent<EventTarget>) => {
     //   return console.log(event);
     // };
-    // const onError = (error: ErrorEvent) => {
-    //   return console.error(error);
-    // };
+    const onError = (error: ErrorEvent) => {
+      return console.error(error);
+    };
 
-    textureLoader.load(
-      textureFile,
-      onLoad
-      //onProgress,
-      //onError
-    );
+    textureLoader.load(textureFile, onLoad, () => {}, onError);
   }
 }
 

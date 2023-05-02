@@ -7,7 +7,7 @@ class MovieCamera extends PerspectiveCamera {
   constructor() {
     super(75, window.innerWidth / window.innerHeight, 0.1, 2000);
 
-    this.setPosition(100, 100, 100);
+    this.setPosition(200, 200, 200);
 
     //on development
     if (import.meta.env.DEV) {

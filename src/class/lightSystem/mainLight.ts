@@ -15,7 +15,7 @@ const defaultSettings: LightSettings = {
 
 const parameters = Object.values(defaultSettings);
 
-class Gaffer extends PointLight {
+class LightSystem extends PointLight {
   constructor() {
     super(...parameters);
     this.name = "Gaffer";
@@ -30,4 +30,4 @@ class Gaffer extends PointLight {
   }
 }
 
-export default Gaffer;
+export default LightSystem;

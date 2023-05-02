@@ -21,7 +21,7 @@ class Director {
 
     //on development
     if (import.meta.env.DEV) {
-      this.addHelpers(1000);
+      // this.addHelpers(1000);
     }
 
     return this;

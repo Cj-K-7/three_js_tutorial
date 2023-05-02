@@ -58,13 +58,13 @@ class PathFinder {
     fragmentShader: fragmentShader,
   });
 
-  constructor(length?: number) {
+  constructor() {
     const wavesGeomertyElements = document.getElementsByClassName(
       "wave"
     ) as HTMLCollectionOf<SVGGeometryElement>;
     const waves = Array.from(wavesGeomertyElements);
-    this.paths = waves.map<Path>(this.getPath);
-    this.pathFinderLength = length ? length : 200;
+    this.paths = waves.map<Path>(this.getPathFromSVG);
+    this.pathFinderLength = 200;
     this.pathFinderCoords = new Float32Array(this.pathFinderLength * coordCnt);
     this.pathFinderSize = new Float32Array(this.pathFinderLength);
     this.pathFinderOps = new Float32Array(this.pathFinderLength);
@@ -74,8 +74,10 @@ class PathFinder {
     scene.add(particles);
   }
 
+  getPathFromGeometry(geometry: any) {}
+
   /**get Path from SVG geometry */
-  getPath(svg: SVGGeometryElement, index: number): Path {
+  getPathFromSVG(svg: SVGGeometryElement, index: number): Path {
     const realLength = svg.getTotalLength();
     const pathPointLength = Math.floor(realLength);
     const coodinates: Coordinate[] = [];
@@ -86,6 +88,10 @@ class PathFinder {
     }
 
     return new Path(index, realLength, pathPointLength, coodinates);
+  }
+
+  setPathLength(length: number) {
+    this.pathFinderLength = length;
   }
 
   /**set GeometryAttr */

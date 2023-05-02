@@ -3,8 +3,6 @@ import { Vector2, SphereGeometry, MeshPhysicalMaterial } from "three";
 import TexturedMesh from "./texturedMesh";
 
 class ModelCreator {
-  public isLoading = false;
-
   constructor() {}
 
   createShpere(): TexturedMesh {

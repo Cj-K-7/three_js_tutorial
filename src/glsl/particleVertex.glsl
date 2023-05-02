@@ -1,14 +1,17 @@
-uniform float time;
+// uniform float time;
+// uniform sampler2D texture1;
 varying vec2 vUv;
 varying vec3 vPosition;
 varying float vOpacity;
-uniform sampler2D texture1;
 attribute float opacity;
+attribute float size;
+
 float PI = 3.141592653589793238;
+
 void main() {
-      vUv = uv;
+  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+  vUv = uv;
   vOpacity = opacity;
-  vec4 mvPosition = modelViewMatrix * vec4( position, 1. );
-  gl_PointSize = 10000. * ( 1. / - mvPosition.z );
+  gl_PointSize = size;
   gl_Position = projectionMatrix * mvPosition;
 }
