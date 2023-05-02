@@ -7,19 +7,18 @@ import {
   ShaderMaterial,
   Vector4,
 } from "three";
-import fragment from "../../glsl/particleFragment.glsl?raw";
-import vertex from "../../glsl/particleVertex.glsl?raw";
+import fragmentShader from "../../glsl/particleFragment.glsl?raw";
+import vertexShader from "../../glsl/particleVertex.glsl?raw";
 import { scene } from "../../core";
 
-const coordsNumber: number = 3;
+const coordCnt: number = 3;
 
-class ParticlePath {
+class Path {
   public id: number;
-  public index: number = 0;
   public count: number;
   public length: number;
+  public startPt: number = 0;
   public coordinates: Coordinate[];
-  public velocity: number = 1;
 
   constructor(
     id: number,
@@ -34,8 +33,12 @@ class ParticlePath {
   }
 }
 
-class MovingParticle {
-  private paths: ParticlePath[] = [];
+class PathFinder {
+  // Pathfinder Props //=================================================
+  private paths: Path[] = [];
+  private pathFinderLength: number;
+  private pathFinderCoords: Float32Array;
+  private pathFinderOps: Float32Array;
   private geometry = new BufferGeometry();
   private material = new ShaderMaterial({
     extensions: {
@@ -50,78 +53,78 @@ class MovingParticle {
     depthTest: true,
     depthWrite: true,
     blending: AdditiveBlending,
-    vertexShader: vertex,
-    fragmentShader: fragment,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
   });
 
-  private particlesCoor: Float32Array;
-  private particlesOp: Float32Array;
-  private progress: number;
-
-  constructor() {
+  constructor(length?: number) {
     const wavesGeomertyElements = document.getElementsByClassName(
       "wave"
     ) as HTMLCollectionOf<SVGGeometryElement>;
     const waves = Array.from(wavesGeomertyElements);
-    this.paths = waves.map<ParticlePath>((path, index) => {
-      const length = path.getTotalLength();
-      const count = Math.floor(length / 5);
-      const coodinates: Coordinate[] = [];
+    this.paths = waves.map<Path>(this.getPath);
+    this.pathFinderLength = length ? length : 200;
+    this.pathFinderCoords = new Float32Array(this.pathFinderLength * coordCnt);
+    this.pathFinderOps = new Float32Array(this.pathFinderLength);
+    this.setGeometryAttribute();
 
-      for (let i = 0; i < 900; i++) {
-        const pointAt = length * (i / count);
-        const { x, y, z } = path.getPointAtLength(pointAt);
-        coodinates.push([x - 1000, y - 512, 0]);
-      }
-      return new ParticlePath(index, length, count, coodinates);
-    });
-    this.progress = this.paths.length * 100;
-    this.particlesCoor = new Float32Array(this.progress * coordsNumber);
-    this.particlesOp = new Float32Array(this.progress);
-  }
-
-  setPathToGeometry(): void {
-    for (let i = 0; i < this.progress; i++) {
-      this.particlesCoor.set(
-        [Math.random() * 100, Math.random() * 1000, 0],
-        i * coordsNumber
-      );
-      this.particlesOp.set([Math.random() / 6], i);
-    }
-
-    console.log(this.particlesCoor, this.particlesOp);
-    this.geometry.setAttribute(
-      "position",
-      new BufferAttribute(this.particlesCoor, coordsNumber)
-    );
-    this.geometry.setAttribute(
-      "opacity",
-      new BufferAttribute(this.particlesOp, 1)
-    );
-  }
-
-  render(): void {
-    this.setPathToGeometry();
     const particles = new Points(this.geometry, this.material);
     scene.add(particles);
   }
 
+  /**get Path from SVG geometry */
+  getPath(svg: SVGGeometryElement, index: number): Path {
+    const realLength = svg.getTotalLength();
+    const pathPointLength = Math.floor(realLength);
+    const coodinates: Coordinate[] = [];
+
+    for (let at = 0; at < pathPointLength; at++) {
+      const { x, y, z } = svg.getPointAtLength(at);
+      coodinates.push([x, y, z ? z : 0]);
+    }
+
+    return new Path(index, realLength, pathPointLength, coodinates);
+  }
+
+  /**set GeometryAttr */
+  setGeometryAttribute(): void {
+    for (let i = 0; i < this.pathFinderLength; i++) {
+      const position = [
+        Math.random() * 100,
+        Math.random() * 100,
+        Math.random() * 100,
+      ];
+      const opacity = [1 - (this.pathFinderLength - i) / this.pathFinderLength];
+      this.pathFinderCoords.set(position, i);
+      this.pathFinderOps.set(opacity, i);
+    }
+
+    this.geometry.setAttribute(
+      "position",
+      new BufferAttribute(this.pathFinderCoords, coordCnt)
+    );
+    this.geometry.setAttribute(
+      "opacity",
+      new BufferAttribute(this.pathFinderOps, 1)
+    );
+  }
+
+  followPath(path: Path, velocity: number = 5) {
+    path.startPt += velocity;
+    for (let i = 0; i < this.pathFinderLength; i++) {
+      let index = (path.startPt + i) % path.length;
+      let p = path.coordinates[index];
+      this.pathFinderCoords.set(p, i * 3);
+    }
+  }
+
+  dispose(): void {}
+
   animate(): void {
-    let j = 0;
-    this.paths.forEach((path) => {
-      path.index += path.velocity;
-      path.index = path.index % path.count;
-      for (let i = 0; i < 100; i++) {
-        let index = (path.index + i) % path.count;
-        let p = path.coordinates[index];
-        this.particlesCoor.set(p, j * 3);
-        this.particlesOp.set([Math.pow(i / 1000, 1.3)], j);
-        j++;
-      }
-    });
-    this.geometry.attributes.position.array = this.particlesCoor;
+    this.paths.forEach((path) => this.followPath(path));
+    this.geometry.attributes.position.array = this.pathFinderCoords;
     this.geometry.attributes.position.needsUpdate = true;
   }
 }
 
-export default MovingParticle;
+export default PathFinder;

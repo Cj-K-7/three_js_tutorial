@@ -3,7 +3,7 @@ import ModelCreator from "./class/objectSystem/modelCreator";
 import Gaffer from "./class/lightSystem/mainLight";
 import "./class/particleSystem/particle";
 import useUtility from "./utility/utility";
-import MovingParticle from "./class/particleSystem/particle";
+import PathFinder from "./class/particleSystem/particle";
 
 const modelCreator = new ModelCreator();
 const gaffer = new Gaffer();
@@ -17,8 +17,7 @@ async function main() {
   //== Models ==================================================================
   // const ball = modelCreator.createShpere();
   // ball.addTexture(textureList[0]);
-  const particle = new MovingParticle();
-  particle.render();
+  const particle = new PathFinder();
   //== LifeCycles ==============================================================
   /**
    * intialize WebGL with THREE.js
@@ -32,17 +31,13 @@ async function main() {
    */
   async function animate() {
     director.filming();
-    particle.animate();
+    // particle.animate();
     requestAnimationFrame(animate);
   }
 
   //== Do Actions ==============================================================
-  try {
-    await init();
-    await animate();
-  } catch (error) {
-    console.error(error);
-  }
+  await init();
+  await animate();
 }
 
 main();
