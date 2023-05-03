@@ -18,13 +18,13 @@ class Path {
   public count: number;
   public length: number;
   public startPt: number = 0;
-  public coordinates: Coordinate[];
+  public coordinates: Coordinate3[];
 
   constructor(
     id: number,
     count: number,
     length: number,
-    coordinates: Coordinate[]
+    coordinates: Coordinate3[]
   ) {
     this.id = id;
     this.count = count;
@@ -74,13 +74,13 @@ class PathFinder {
     scene.add(particles);
   }
 
-  getPathFromGeometry(geometry: any) {}
+  // getPathFromGeometry(geometry: any) {}
 
   /**get Path from SVG geometry */
   getPathFromSVG(svg: SVGGeometryElement, index: number): Path {
     const realLength = svg.getTotalLength();
     const pathPointLength = Math.floor(realLength);
-    const coodinates: Coordinate[] = [];
+    const coodinates: Coordinate3[] = [];
 
     for (let at = 0; at < pathPointLength; at++) {
       const { x, y, z } = svg.getPointAtLength(at);
@@ -95,7 +95,7 @@ class PathFinder {
   }
 
   /**set GeometryAttr */
-  setGeometryAttribute(): void {
+  setGeometryAttribute() {
     for (let i = 0; i < this.pathFinderLength; i++) {
       const position = [
         Math.random() * this.pathFinderLength,
@@ -133,9 +133,9 @@ class PathFinder {
     }
   }
 
-  dispose(): void {}
+  dispose() {}
 
-  animate(): void {
+  animate() {
     this.paths.forEach((path) => this.followPath(path));
     this.geometry.attributes.position.needsUpdate = true;
   }

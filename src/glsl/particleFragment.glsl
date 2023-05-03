@@ -1,3 +1,4 @@
+precision highp float;
 uniform float time;
 uniform float progress;
 uniform sampler2D texture1;

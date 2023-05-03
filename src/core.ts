@@ -7,7 +7,7 @@ import {
 
 //== Canvas setup ==============================================================
 
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+export const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
 //== Scene setup ===============================================================
 

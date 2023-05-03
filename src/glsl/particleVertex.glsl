@@ -1,8 +1,6 @@
-// uniform float time;
-// uniform sampler2D texture1;
 varying vec2 vUv;
-varying vec3 vPosition;
 varying float vOpacity;
+
 attribute float opacity;
 attribute float size;
 
