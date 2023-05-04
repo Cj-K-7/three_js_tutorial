@@ -1,7 +1,7 @@
 import director from "./class/director";
 import tween from "@tweenjs/tween.js";
 import LightSystem from "./class/lightSystem/lightSystem";
-import { initScenario } from "./scenario";
+import { initScenario, updateScenario } from "./scenario";
 import useUtility from "./utility/utility";
 
 async function main() {
@@ -14,7 +14,6 @@ async function main() {
    * intialize WebGL with THREE.js
    **/
   async function init() {
-    await useUtility();
     await initScenario();
   }
 
@@ -23,11 +22,13 @@ async function main() {
    */
   async function animate() {
     director.updateScene();
+    updateScenario();
     tween.update();
     requestAnimationFrame(animate);
   }
 
   //== Do Actions ==============================================================
+  await useUtility();
   await init();
   await animate();
 }

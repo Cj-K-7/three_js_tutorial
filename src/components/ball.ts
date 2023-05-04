@@ -1,8 +1,8 @@
 import {
-  ColorRepresentation,
-  MeshPhysicalMaterial,
   SphereGeometry,
+  MeshPhysicalMaterial,
   Vector2,
+  ColorRepresentation,
 } from "three";
 import AdvancedMesh from "../class/objectSystem/advancedMesh";
 
@@ -26,6 +26,7 @@ const Ball = async (
     normalScale: new Vector2(0.15, 0.15),
   });
   const ball = new AdvancedMesh(geometry, material);
+
   await ball.addEnvmapTexture("blue_photo_studio_4k.hdr");
 
   return ball;

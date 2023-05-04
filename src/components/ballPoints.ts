@@ -1,4 +1,4 @@
-import { ColorRepresentation, PointsMaterial, SphereGeometry } from "three";
+import { SphereGeometry, PointsMaterial, ColorRepresentation } from "three";
 import AdvancedPoints from "../class/objectSystem/advancedPoints";
 
 /**
@@ -7,7 +7,7 @@ import AdvancedPoints from "../class/objectSystem/advancedPoints";
  * @param geometryParams
  * @returns BallParticle
  */
-const BallParticle = async (
+const BallPoints = async (
   color: ColorRepresentation,
   ...geometryParams: SphereGeometryParameters
 ): Promise<AdvancedPoints> => {
@@ -18,4 +18,4 @@ const BallParticle = async (
   return ball;
 };
 
-export default BallParticle;
+export default BallPoints;

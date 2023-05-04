@@ -12,12 +12,28 @@ type CameraSetting = {
   point: Axes;
 };
 
+type PlaneGeometryParameters = [
+  width: number,
+  height: number,
+  widthSegments?: number,
+  heightSegments?: number
+];
+
+type BoxGeometryParameters = [
+  width: number,
+  height: number,
+  depth: number,
+  widthSegments?: number,
+  heightSegments?: number,
+  depthSegments?: number
+];
+
 type SphereGeometryParameters = [
-  radius?: number | undefined,
-  widthSegments?: number | undefined,
-  heightSegments?: number | undefined,
-  phiStart?: number | undefined,
-  phiLength?: number | undefined,
-  thetaStart?: number | undefined,
-  thetaLength?: number | undefined
+  radius: number,
+  widthSegments: number,
+  heightSegments: number,
+  phiStart?: number,
+  phiLength?: number,
+  thetaStart?: number,
+  thetaLength?: number
 ];
