@@ -37,3 +37,12 @@ type SphereGeometryParameters = [
   thetaStart?: number,
   thetaLength?: number
 ];
+
+//Particel Systems
+/**Path */
+interface ParticlePath {
+  id: number;
+  numberOfPoints: number;
+  startPoint: number;
+  coordinates: Coordinate3[];
+}

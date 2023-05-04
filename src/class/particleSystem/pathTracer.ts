@@ -1,3 +1,4 @@
+import { scene } from "../../core";
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -5,37 +6,17 @@ import {
   DoubleSide,
   Points,
   ShaderMaterial,
+  Vector3,
   Vector4,
 } from "three";
 import fragmentShader from "../../glsl/particleFragment.glsl?raw";
 import vertexShader from "../../glsl/particleVertex.glsl?raw";
-import { scene } from "../../core";
 
 const coordCnt: number = 3;
 
-class Path {
-  public id: number;
-  public count: number;
-  public length: number;
-  public startPt: number = 0;
-  public coordinates: Coordinate3[];
-
-  constructor(
-    id: number,
-    count: number,
-    length: number,
-    coordinates: Coordinate3[]
-  ) {
-    this.id = id;
-    this.count = count;
-    this.length = length;
-    this.coordinates = coordinates;
-  }
-}
-
-class PathFinder {
+class PathTracer {
   // Pathfinder Props //=================================================
-  private paths: Path[] = [];
+  public paths: ParticlePath[] = [];
   private pathFinderLength: number;
   private pathFinderCoords: Float32Array;
   private pathFinderSize: Float32Array;
@@ -58,40 +39,51 @@ class PathFinder {
     fragmentShader: fragmentShader,
   });
 
-  constructor() {
-    const wavesGeomertyElements = document.getElementsByClassName(
-      "wave"
-    ) as HTMLCollectionOf<SVGGeometryElement>;
-    const waves = Array.from(wavesGeomertyElements);
-    this.paths = waves.map<Path>(this.getPathFromSVG);
-    this.pathFinderLength = 200;
+  constructor(length: number = 200) {
+    this.pathFinderLength = length;
     this.pathFinderCoords = new Float32Array(this.pathFinderLength * coordCnt);
     this.pathFinderSize = new Float32Array(this.pathFinderLength);
     this.pathFinderOps = new Float32Array(this.pathFinderLength);
-    this.setGeometryAttribute();
-
-    const particles = new Points(this.geometry, this.material);
-    scene.add(particles);
   }
 
-  // getPathFromGeometry(geometry: any) {}
+  get pathsLength() {
+    return this.paths.length;
+  }
 
-  /**get Path from SVG geometry */
-  getPathFromSVG(svg: SVGGeometryElement, index: number): Path {
-    const realLength = svg.getTotalLength();
-    const pathPointLength = Math.floor(realLength);
-    const coodinates: Coordinate3[] = [];
+  addPath(numberOfPoints: number, coordinates: Coordinate3[]) {
+    const SVGPath: ParticlePath = {
+      id: this.pathsLength,
+      numberOfPoints,
+      startPoint: 0,
+      coordinates,
+    };
+    this.paths.push(SVGPath);
+  }
 
-    for (let at = 0; at < pathPointLength; at++) {
-      const { x, y, z } = svg.getPointAtLength(at);
-      coodinates.push([x, z ? z : 0, y]);
+  addPathFromVector3s(path: Vector3[]) {
+    const numberOfPoints = path.length;
+    const coordinates: Coordinate3[] = [];
+
+    for (let at = 0; at < numberOfPoints; at++) {
+      const { x, y, z } = path.at(at)!;
+      coordinates.push([x, y, z ? z : 0]);
     }
 
-    return new Path(index, realLength, pathPointLength, coodinates);
+    this.addPath(numberOfPoints, coordinates);
   }
 
-  setPathLength(length: number) {
-    this.pathFinderLength = length;
+  /**add Path from SVG geometry */
+  addPathFromSVG(svg: SVGGeometryElement) {
+    const realLength = svg.getTotalLength();
+    const numberOfPoints = Math.floor(realLength);
+    const coordinates: Coordinate3[] = [];
+
+    for (let at = 0; at < numberOfPoints; at++) {
+      const { x, y, z } = svg.getPointAtLength(at);
+      coordinates.push([x, y, z ? z : 0]);
+    }
+
+    this.addPath(numberOfPoints, coordinates);
   }
 
   /**set GeometryAttr */
@@ -124,21 +116,35 @@ class PathFinder {
     );
   }
 
-  followPath(path: Path, velocity: number = 5) {
-    path.startPt += velocity;
+  activatePaths() {
+    const particles = new Points(this.geometry, this.material);
+    this.setGeometryAttribute();
+
+    scene.add(particles);
+  }
+
+  followPath(path: ParticlePath, velocity: number = 5) {
+    path.startPoint += velocity;
     for (let i = 0; i < this.pathFinderLength; i++) {
-      let index = (path.startPt + i) % path.length;
+      let index = (path.startPoint + i) % path.numberOfPoints;
       let p = path.coordinates[index];
       this.pathFinderCoords.set(p, i * 3);
     }
   }
 
-  dispose() {}
+  changeTracerLength(length: number) {
+    this.pathFinderLength = length;
+  }
 
   animate() {
     this.paths.forEach((path) => this.followPath(path));
     this.geometry.attributes.position.needsUpdate = true;
   }
+
+  dispose() {
+    this.geometry.dispose();
+    this.material.dispose();
+  }
 }
 
-export default PathFinder;
+export default PathTracer;

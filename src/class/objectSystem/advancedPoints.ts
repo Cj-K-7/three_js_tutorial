@@ -4,13 +4,8 @@ import { scene } from "../../core";
 type ParticleMaterial = PointsMaterial | ShaderMaterial;
 
 class AdvancedPoints extends Points<BufferGeometry, ParticleMaterial> {
-  constructor(
-    geometry: BufferGeometry,
-    material: ParticleMaterial,
-    name: string = "default"
-  ) {
+  constructor(geometry: BufferGeometry, material: ParticleMaterial) {
     super(geometry, material);
-    this.name = name;
   }
 
   /**
