@@ -2,7 +2,7 @@ import director from "./class/director";
 import tween from "@tweenjs/tween.js";
 import LightSystem from "./class/lightSystem/lightSystem";
 import { initScenario, updateScenario } from "./scenario";
-import useUtility from "./utility/utility";
+import useWebGLAvailability from "./hooks/useAvailability";
 
 async function main() {
   //== Models ==================================================================
@@ -28,7 +28,7 @@ async function main() {
   }
 
   //== Do Actions ==============================================================
-  await useUtility();
+  await useWebGLAvailability();
   await init();
   await animate();
 }

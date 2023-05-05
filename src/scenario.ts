@@ -1,20 +1,19 @@
 import ObjectManager from "./class/objectSystem/objectManager";
-import PathTracer from "./class/particleSystem/pathTracer";
+import PathTracer from "./class/particleSystem/pathTracer/pathTracer";
 
 const ballManager = new ObjectManager();
-const pathFinder = new PathTracer();
+const pathTracer = new PathTracer(200, 5000);
 const waveSvg = document.getElementById(
   "wave"
 ) as unknown as SVGGeometryElement;
 
-pathFinder.addPathFromSVG(waveSvg!);
-
-pathFinder.activatePaths();
+pathTracer.setPathFromSVG(waveSvg!);
+pathTracer.activate();
 
 export async function initScenario() {
   ballManager.append();
 }
 
 export function updateScenario() {
-  pathFinder.animate();
+  pathTracer.update();
 }

@@ -12,10 +12,10 @@ type DirectorCamera = PerspectiveCamera | OrthographicCamera;
 
 //== Director ==================================================================
 class Director {
-  private currentCamera: DirectorCamera;
+  public currentCamera: DirectorCamera;
+  public currentLookPoint: Coordinate3 = [0, 0, 0];
   private controls?: OrbitControls;
-  private currentLookPoint: Coordinate3 = [0, 0, 0];
-  private perspectiveCamera: PerspectiveCamera = new PerspectiveCamera(
+  public perspectiveCamera: PerspectiveCamera = new PerspectiveCamera(
     75,
     innerWidth / innerHeight
   );
@@ -30,8 +30,10 @@ class Director {
 
   constructor() {
     this.currentCamera = this.perspectiveCamera;
-    this.currentCamera.position.set(50, 50, 50);
+    this.currentCamera.position.set(100, 100, 100);
     this.currentCamera.lookAt(...this.currentLookPoint);
+
+    //== Adaptation of Windows =================================================
 
     const onResize = () => {
       this.perspectiveCamera.aspect = innerWidth / innerHeight;
@@ -39,15 +41,14 @@ class Director {
       renderer.setSize(innerWidth, innerHeight);
     };
     onResize();
+
     addEventListener("resize", onResize, false);
 
-    //on development
+    //== On Development ========================================================
     if (import.meta.env.DEV) {
       this.addHelpers(500);
       this.resetControls();
     }
-
-    return this;
   }
 
   /**
@@ -71,13 +72,16 @@ class Director {
    * change camera and inherits it's properties
    * @param camera
    */
-  private changeCamera(camera: DirectorCamera) {
+  changeCamera(camera: DirectorCamera) {
     const { x, y, z } = this.currentCamera.position;
     camera.position.set(x, y, z);
     this.currentCamera = camera;
     this.resetControls();
   }
 
+  /**
+   * change camera between `perspectiveCamera` and  `orthographicCamera`
+   */
   toggelCamear() {
     switch (this.currentCamera) {
       case this.perspectiveCamera:
@@ -87,6 +91,10 @@ class Director {
     }
   }
 
+  /**
+   * move
+   * @param ...Coordinate4
+   */
   async move(...[cx, cy, cz, cv = 1]: Coordinate4) {
     return new Promise<void>((resolve) => {
       const { x, y, z } = this.currentCamera.position;
@@ -103,6 +111,10 @@ class Director {
     });
   }
 
+  /**
+   * look at
+   * @param ...Coordinate4
+   */
   async lookAt(...[cx, cy, cz, cv = 1]: Coordinate4) {
     return new Promise<void>((resolve) => {
       const animation = new tween.Tween<Coordinate3>(this.currentLookPoint)

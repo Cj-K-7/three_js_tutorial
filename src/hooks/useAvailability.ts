@@ -1,6 +1,6 @@
 import WEBGL from "three/examples/jsm/capabilities/WebGL";
 
-async function checkCapabilityOfDoc() {
+async function useWebGLAvailability() {
   return new Promise<boolean>((resolve) => {
     const isWebGLAvailable = WEBGL.isWebGLAvailable();
     if (!isWebGLAvailable) {
@@ -12,19 +12,4 @@ async function checkCapabilityOfDoc() {
   });
 }
 
-/**
- * @constructor of Utility
- *
- * 1. Window resize handler
- */
-async function useWindowUtils() {
-  //decalre
-  //action
-}
-
-async function useUtility() {
-  await checkCapabilityOfDoc();
-  await useWindowUtils();
-}
-
-export default useUtility;
+export default useWebGLAvailability;
