@@ -1,19 +1,28 @@
 import ObjectManager from "./class/objectSystem/objectManager";
-import PathTracer from "./class/particleSystem/pathTracer/pathTracer";
+import Ball from "./components/ball";
+import Wall from "./components/wall";
+// import PathTracer from "./class/particleSystem/pathTracer/pathTracer";
 
-const ballManager = new ObjectManager();
-const pathTracer = new PathTracer(200, 5000);
-const waveSvg = document.getElementById(
-  "wave"
-) as unknown as SVGGeometryElement;
+//Rule =========================================================================
 
-pathTracer.setPathFromSVG(waveSvg!);
-pathTracer.activate();
+// 3D Objects must be declared as @[let]
+
+const TestManager = new ObjectManager();
+let wall = await Wall();
+let ball = await Ball(0xff00ffff, 5);
+// const pathTracer = new PathTracer(200, 5000);
+// const waveSvg = document.getElementById(
+//   "wave"
+// ) as unknown as SVGGeometryElement;
+
+// pathTracer.setPathFromSVG(waveSvg!);
+// pathTracer.activate();
 
 export async function initScenario() {
-  ballManager.append();
+  TestManager.append(wall);
 }
 
 export function updateScenario() {
-  pathTracer.update();
+  wall.update();
+  // pathTracer.update();
 }

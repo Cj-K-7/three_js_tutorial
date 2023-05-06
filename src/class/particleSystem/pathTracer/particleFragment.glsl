@@ -1,14 +1,7 @@
-precision highp float;
-
-uniform float time;
-uniform float progress;
-uniform sampler2D texture1;
-uniform vec4 resolution;
-
-varying vec2 vUv;
-varying vec3 vPosition;
+#ifdef GL_ES
+precision mediump float;
+#endif
 varying float vOpacity;
-float PI = 3.141592653589793238;
 
 void main(){
     vec2 uv = vec2(gl_PointCoord.x,1. - gl_PointCoord.y);
@@ -24,5 +17,4 @@ void main(){
     float disc = length(cUV);
 
     gl_FragColor = vec4(color.r - disc,color.g - disc,color.b - disc,color.a);
-    // gl_FragColor = vec4(color.rgb,color.a);
 }

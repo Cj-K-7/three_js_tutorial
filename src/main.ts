@@ -1,5 +1,5 @@
-import director from "./class/director";
-import tween from "@tweenjs/tween.js";
+import CameraMan from "./class/cameraMan";
+import Tween from "@tweenjs/tween.js";
 import LightSystem from "./class/lightSystem/lightSystem";
 import { initScenario, updateScenario } from "./scenario";
 import useWebGLAvailability from "./hooks/useAvailability";
@@ -21,9 +21,9 @@ async function main() {
    * start update 3D rendering display
    */
   async function animate() {
-    director.updateScene();
+    CameraMan.updateScene();
     updateScenario();
-    tween.update();
+    Tween.update();
     requestAnimationFrame(animate);
   }
 

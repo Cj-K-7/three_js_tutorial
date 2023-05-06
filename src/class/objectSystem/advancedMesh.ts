@@ -1,64 +1,90 @@
 import { renderer, scene } from "../../core";
 import {
-  PMREMGenerator,
   CanvasTexture,
   DataTexture,
-  Mesh,
-  RepeatWrapping,
   BufferGeometry,
+  Material,
+  MeshStandardMaterial,
   MeshPhysicalMaterial,
   MeshPhongMaterial,
+  Mesh,
   CubeCamera,
   WebGLCubeRenderTarget,
-  LinearMipMapLinearFilter,
-  MeshStandardMaterial,
+  PMREMGenerator,
+  RepeatWrapping,
   CubeRefractionMapping,
   CubeReflectionMapping,
+  LinearMipMapLinearFilter,
 } from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 import { FlakesTexture } from "three/examples/jsm/textures/FlakesTexture";
 
-const textureAssetPath = "/src/assets/textures/";
-const REFLECTION = CubeReflectionMapping;
-const REFRACTION = CubeRefractionMapping;
+const cubeCameraAvailables = [
+  "\n\tMeshStandardMaterial",
+  "\n\tMeshPhysicalMaterial",
+  "\n\tMeshPhongMaterial",
+];
+const instanceError = `\nit must be one of these Class instance \n\n [ ${cubeCameraAvailables} \n ]\n`;
+
+const REFLECTION = () => CubeReflectionMapping;
+const REFRACTION = () => CubeRefractionMapping;
 
 type CubeRenderTargetTextureType = typeof REFLECTION | typeof REFRACTION;
 
-type AdvancedMaterial =
-  | MeshStandardMaterial
-  | MeshPhysicalMaterial
-  | MeshPhongMaterial;
-
-class AdvancedMesh extends Mesh<BufferGeometry, AdvancedMaterial> {
-  private textureLoader = new RGBELoader();
-  private envmapLoader = new PMREMGenerator(renderer);
+/**
+ * # `AdvancedMesh`
+ *
+ * simply add some **features** to `Mesh` of three.js
+ *
+ * ### Features
+ *   -     Life-cycle handling. ex)  animate(), dispose()
+ *   -     can add REFLECTION or REFRACTION
+ *
+ * ### Parameters
+ * @param { BufferGeometry } geometry geometry for Mesh
+ * @param { Material } material material for Mesh
+ *
+ * @author K-CJ-7
+ */
+class AdvancedMesh<
+  G extends BufferGeometry = BufferGeometry,
+  M extends Material = Material
+> extends Mesh<G, M> {
   private cubeCamera?: CubeCamera;
   private cubeRenderTarget?: WebGLCubeRenderTarget;
 
-  constructor(geometry: BufferGeometry, material: AdvancedMaterial) {
+  constructor(geometry: G, material: M) {
     super(geometry, material);
-    this.textureLoader.setPath(textureAssetPath);
   }
 
-  assignCubeRenderTarget(
-    size: number = 1000,
+  private assignCubeRenderTarget(
+    size: number = 256,
     type: CubeRenderTargetTextureType
   ) {
-    this.cubeRenderTarget ??= new WebGLCubeRenderTarget(size, {
-      generateMipmaps: true,
-      minFilter: LinearMipMapLinearFilter,
-    });
-    this.cubeRenderTarget.texture.mapping = type;
-    this.cubeCamera ??= new CubeCamera(1, 1000, this.cubeRenderTarget);
-    this.material.setValues({
-      envMap: this.cubeRenderTarget.texture,
-    });
-    this.add(this.cubeCamera);
+    if (
+      this.material instanceof
+      (MeshStandardMaterial || MeshPhysicalMaterial || MeshPhongMaterial)
+    ) {
+      this.cubeRenderTarget ??= new WebGLCubeRenderTarget(size, {
+        generateMipmaps: true,
+        minFilter: LinearMipMapLinearFilter,
+      });
+      this.cubeRenderTarget.texture.mapping = type();
+      this.cubeCamera ??= new CubeCamera(1, 1000, this.cubeRenderTarget);
+      this.material.setValues({
+        envMap: this.cubeRenderTarget.texture,
+      });
+      this.add(this.cubeCamera);
+    } else {
+      throw Error(
+        `This material is not supported for "${type.name}". ${instanceError}`
+      );
+    }
   }
 
   /**
    * add `Reflection` texture on Material. must update frame of CubeCamera.
-   * @param size
+   * @param size default 256
    */
   addRefelctions(size?: number) {
     this.assignCubeRenderTarget(size, REFLECTION);
@@ -66,9 +92,9 @@ class AdvancedMesh extends Mesh<BufferGeometry, AdvancedMaterial> {
 
   /**
    * add `Refraction` texture on Material. must update frame of CubeCamera.
-   * @param size
+   * @param size default 256
    */
-  addRefractions(size: number = 1000) {
+  addRefractions(size?: number) {
     this.assignCubeRenderTarget(size, REFRACTION);
   }
 
@@ -79,15 +105,27 @@ class AdvancedMesh extends Mesh<BufferGeometry, AdvancedMaterial> {
    * @param material
    */
   async addEnvmapTexture(textureFile: string) {
+    const textureAssetPath = "/src/assets/textures/";
+    const textureLoader = new RGBELoader();
+    const envmapLoader = new PMREMGenerator(renderer);
+    textureLoader.setPath(textureAssetPath);
+
     return new Promise<void>((resolve, reject) => {
       const onLoad = (dataTexture: DataTexture) => {
+        if (
+          !(
+            this.material instanceof
+            (MeshStandardMaterial || MeshPhysicalMaterial || MeshPhongMaterial)
+          )
+        )
+          throw Error(
+            `This material is not supported for 'envMap' texture. ${instanceError}`
+          );
         const normalMap = new CanvasTexture(new FlakesTexture());
-        const envMap = this.envmapLoader.fromCubemap(
-          dataTexture as any
-        ).texture;
-
+        const envMap = envmapLoader.fromCubemap(dataTexture as any).texture;
+        const material = this.material;
         normalMap.repeat.set(RepeatWrapping, RepeatWrapping);
-        this.material.setValues({
+        material.setValues({
           normalMap,
           envMap,
         });
@@ -100,14 +138,14 @@ class AdvancedMesh extends Mesh<BufferGeometry, AdvancedMaterial> {
         reject(error);
       };
 
-      this.textureLoader.load(textureFile, onLoad, onProgress, onError);
+      textureLoader.load(textureFile, onLoad, onProgress, onError);
     });
   }
 
   /**
-   * update CubeCamera
+   * update : rendering this. you can reassign this method to render new animation or upate values.
    */
-  updateCubeCamera() {
+  update() {
     if (this.cubeCamera) {
       this.visible = false;
       this.cubeCamera.update(renderer, scene);

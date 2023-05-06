@@ -8,11 +8,11 @@ import {
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-type DirectorCamera = PerspectiveCamera | OrthographicCamera;
+type MainCamera = PerspectiveCamera | OrthographicCamera;
 
 //== Director ==================================================================
-class Director {
-  public currentCamera: DirectorCamera;
+class CameraMan {
+  public currentCamera: MainCamera;
   public currentLookPoint: Coordinate3 = [0, 0, 0];
   private controls?: OrbitControls;
   public perspectiveCamera: PerspectiveCamera = new PerspectiveCamera(
@@ -72,7 +72,7 @@ class Director {
    * change camera and inherits it's properties
    * @param camera
    */
-  changeCamera(camera: DirectorCamera) {
+  changeCamera(camera: MainCamera) {
     const { x, y, z } = this.currentCamera.position;
     camera.position.set(x, y, z);
     this.currentCamera = camera;
@@ -82,7 +82,7 @@ class Director {
   /**
    * change camera between `perspectiveCamera` and  `orthographicCamera`
    */
-  toggelCamear() {
+  toggleCamera() {
     switch (this.currentCamera) {
       case this.perspectiveCamera:
         return this.changeCamera(this.orthographicCamera);
@@ -145,6 +145,6 @@ class Director {
   }
 }
 
-const director = new Director();
+const director = new CameraMan();
 
 export default director;

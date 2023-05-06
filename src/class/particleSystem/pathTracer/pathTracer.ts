@@ -15,6 +15,27 @@ import { getVelocity } from "../../../utility/velocity";
 
 const coordCnt: number = 3;
 
+/**
+ * # `PathTracer`
+ *
+ * `PathTracer` is tracer of path. actually it is bunch of particles.
+ * it will follow the path of geometry consist of
+ * `path` coordinates : [ x, y, z ]
+ *
+ * ### Features
+ *
+ *  -     can have only a Path: ParticlePath
+ *  -     set path by using setPathFromVector3s()  or setPathFromSVG()
+ *  -     then activate() this will appear on `scene`
+ *  -     should be updated : use update(). for tracing animation rendering.
+ *
+ * ### Parameters
+ * @param { number } length `INT` number of particles = `length` of PathTracer. it should be lower than path's number of position.
+ * @param { number } duration `milliseconds` it't will decide speed of `PathTracer`. How many time will take one cycle of fiven `path`
+ *
+ * @author K-CJ-7
+ */
+
 class PathTracer {
   // PathTracer Props //=================================================
   /**Path. `PathTracer` will follow this path's positions */
@@ -32,34 +53,22 @@ class PathTracer {
 
   public geometry = new BufferGeometry();
   public material = new ShaderMaterial({
-    extensions: {
-      derivatives: true,
-    },
-    side: DoubleSide,
     uniforms: {
       time: { value: 1.0 },
       resolution: { value: new Vector4() },
     },
+    vertexShader,
+    fragmentShader,
+    blending: AdditiveBlending,
+    side: DoubleSide,
     transparent: true,
     depthTest: false,
     depthWrite: false,
-    blending: AdditiveBlending,
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
+    extensions: {
+      derivatives: true,
+    },
   });
 
-  /**
-   * `PathTracer` is tracer of path. using particle.
-   * paticles will follow the path of geometry consist of `path` coordinates(x, y, z)
-   *
-   *  * can have only a `Path`.
-   *  * set `Path` by using `setPathFromVector3s()`  or `setPathFromSVG()`
-   *  * then `activate()`. this will appear on `scene`
-   *  * should be updated(use `update()`) for trace animation rendering.
-   *
-   * @param length `INT` number of particles = `length` of PathTracer. it should be lower than path's number of position.
-   * @param duration `milliseconds` it't will decide speed of `PathTracer`. How many time will take one cycle of fiven `path`
-   */
   constructor(length: number, duration: number) {
     const isLengthInt = length % 1 === 0;
     if (!isLengthInt) throw Error("PathTracer : 'length' must be integer");

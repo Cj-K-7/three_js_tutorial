@@ -7,16 +7,34 @@ import {
 import AdvancedMesh from "../class/objectSystem/advancedMesh";
 
 /**
- * create physic material ball
- * @param materialParams
- * @param geometryParams
+ * Create physic material ball
+ *
+ * @param color
+ * @param geometryParams ...arguments
+ *
  * @returns Ball
  */
 const Ball = async (
   color: ColorRepresentation,
-  ...geometryParams: SphereGeometryParameters
+  ...[
+    radius,
+    widthSegments = 64,
+    heightSegments = 64,
+    phiStart,
+    phiLengt,
+    thetaStart,
+    thetaLength,
+  ]: SphereGeometryParameters
 ): Promise<AdvancedMesh> => {
-  const geometry = new SphereGeometry(...geometryParams);
+  const geometry = new SphereGeometry(
+    radius,
+    widthSegments,
+    heightSegments,
+    phiStart,
+    phiLengt,
+    thetaStart,
+    thetaLength
+  );
   const material = new MeshPhysicalMaterial({
     color,
     metalness: 1,

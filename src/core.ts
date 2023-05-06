@@ -1,5 +1,6 @@
 import {
   ACESFilmicToneMapping,
+  Clock,
   Scene,
   WebGLRenderer,
   sRGBEncoding,
@@ -20,3 +21,7 @@ export const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.outputEncoding = sRGBEncoding;
 renderer.toneMapping = ACESFilmicToneMapping;
 renderer.setPixelRatio(devicePixelRatio);
+
+//== Clock setup ===============================================================
+
+export const clock = new Clock();

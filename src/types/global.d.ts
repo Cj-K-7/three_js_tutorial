@@ -30,8 +30,8 @@ type BoxGeometryParameters = [
 
 type SphereGeometryParameters = [
   radius: number,
-  widthSegments: number,
-  heightSegments: number,
+  widthSegments?: number,
+  heightSegments?: number,
   phiStart?: number,
   phiLength?: number,
   thetaStart?: number,
