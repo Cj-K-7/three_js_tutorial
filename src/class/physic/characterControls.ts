@@ -1,23 +1,32 @@
-import * as THREE from "three";
+import {
+  AnimationAction,
+  AnimationMixer,
+  Camera,
+  Group,
+  Quaternion,
+  Vector3,
+} from "three";
+import { A, D, DIRECTIONS, S, W, SPACE } from "../../utility/keyBinding";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { A, D, DIRECTIONS, S, W } from "./keyBinding";
+import tween from "@tweenjs/tween.js";
 
 export class CharacterControls {
-  model: THREE.Group;
-  mixer: THREE.AnimationMixer;
-  animationsMap: Map<string, THREE.AnimationAction> = new Map(); // Walk, Run, Idle
+  model: Group;
+  mixer: AnimationMixer;
+  animationsMap: Map<string, AnimationAction> = new Map(); // Walk, Run, Idle
   orbitControl: OrbitControls;
-  camera: THREE.Camera;
+  camera: Camera;
 
   // state
   toggleRun: boolean = true;
+  isJumping: boolean = false;
   currentAction: string;
 
   // temporary data
-  walkDirection = new THREE.Vector3();
-  rotateAngle = new THREE.Vector3(0, 1, 0);
-  rotateQuarternion: THREE.Quaternion = new THREE.Quaternion();
-  cameraTarget = new THREE.Vector3();
+  walkDirection = new Vector3();
+  rotateAngle = new Vector3(0, 1, 0);
+  rotateQuarternion: Quaternion = new Quaternion();
+  cameraTarget = new Vector3();
 
   // constants
   fadeDuration: number = 0.2;
@@ -25,11 +34,11 @@ export class CharacterControls {
   walkVelocity = 2;
 
   constructor(
-    model: THREE.Group,
-    mixer: THREE.AnimationMixer,
-    animationsMap: Map<string, THREE.AnimationAction>,
+    model: Group,
+    mixer: AnimationMixer,
+    animationsMap: Map<string, AnimationAction>,
     orbitControl: OrbitControls,
-    camera: THREE.Camera,
+    camera: Camera,
     currentAction: string
   ) {
     this.model = model;
@@ -52,7 +61,6 @@ export class CharacterControls {
 
   public update(delta: number, keysPressed: any) {
     const directionPressed = DIRECTIONS.some((key) => keysPressed[key] == true);
-
     var play = "";
     if (directionPressed && this.toggleRun) {
       play = "Run";
@@ -73,6 +81,30 @@ export class CharacterControls {
     }
 
     this.mixer.update(delta);
+
+    // run/walk velocity
+    const velocity =
+      this.currentAction == "Run" ? this.runVelocity : this.walkVelocity;
+
+    if (keysPressed[SPACE] && !this.isJumping) {
+      const animation = new tween.Tween<number[]>([0])
+        .duration(500)
+        .easing(tween.Easing.Linear.None)
+        .onStart(() => (this.isJumping = true))
+        .onUpdate((_, time) => {
+          if (time > 0.666) {
+            if (this.model.position.y <= 0) {
+              this.model.position.y = 0;
+            } else {
+              this.model.position.y += -9.8 * delta;
+            }
+          } else {
+            this.model.position.y += velocity * 0.7 * delta;
+          }
+        })
+        .onComplete(() => (this.isJumping = false));
+      animation.start();
+    }
 
     if (this.currentAction == "Run" || this.currentAction == "Walk") {
       // calculate towards camera direction
@@ -96,15 +128,13 @@ export class CharacterControls {
       this.walkDirection.normalize();
       this.walkDirection.applyAxisAngle(this.rotateAngle, directionOffset);
 
-      // run/walk velocity
-      const velocity =
-        this.currentAction == "Run" ? this.runVelocity : this.walkVelocity;
-
       // move model & camera
       const moveX = this.walkDirection.x * velocity * delta;
       const moveZ = this.walkDirection.z * velocity * delta;
+
       this.model.position.x += moveX;
       this.model.position.z += moveZ;
+
       this.updateCameraTarget(moveX, moveZ);
     }
   }
@@ -123,7 +153,6 @@ export class CharacterControls {
 
   private directionOffset(keysPressed: any) {
     var directionOffset = 0; // w
-
     if (keysPressed[W]) {
       if (keysPressed[A]) {
         directionOffset = Math.PI / 4; // w+a

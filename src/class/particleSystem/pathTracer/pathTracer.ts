@@ -9,8 +9,8 @@ import {
   Vector3,
   Vector4,
 } from "three";
-import fragmentShader from "./particleFragment.glsl?raw";
-import vertexShader from "./particleVertex.glsl?raw";
+import fragmentShader from "./shader/fragment.glsl?raw";
+import vertexShader from "./shader/vertex.glsl?raw";
 import { getVelocity } from "../../../utility/velocity";
 
 const coordCnt: number = 3;
@@ -51,27 +51,29 @@ class PathTracer {
   /**`PathTracer`'s `opacity` of particles */
   private paticlesOpacity: Float32Array;
 
-  public geometry = new BufferGeometry();
-  public material = new ShaderMaterial({
-    uniforms: {
-      time: { value: 1.0 },
-      resolution: { value: new Vector4() },
-    },
-    vertexShader,
-    fragmentShader,
-    blending: AdditiveBlending,
-    side: DoubleSide,
-    transparent: true,
-    depthTest: false,
-    depthWrite: false,
-    extensions: {
-      derivatives: true,
-    },
-  });
+  public geometry: BufferGeometry;
+  public material: ShaderMaterial;
 
   constructor(length: number, duration: number) {
     const isLengthInt = length % 1 === 0;
     if (!isLengthInt) throw Error("PathTracer : 'length' must be integer");
+    this.geometry = new BufferGeometry();
+    this.material = new ShaderMaterial({
+      uniforms: {
+        time: { value: 1.0 },
+        resolution: { value: new Vector4() },
+      },
+      vertexShader,
+      fragmentShader,
+      blending: AdditiveBlending,
+      side: DoubleSide,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      extensions: {
+        derivatives: true,
+      },
+    });
     this.duration = duration;
     this.particlesNumber = length;
     this.particlesCoord3 = new Float32Array(this.particlesNumber * coordCnt);

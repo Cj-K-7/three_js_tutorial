@@ -14,12 +14,12 @@ type MainCamera = PerspectiveCamera | OrthographicCamera;
 class CameraMan {
   public currentCamera: MainCamera;
   public currentLookPoint: Coordinate3 = [0, 0, 0];
-  private controls?: OrbitControls;
+  public controls?: OrbitControls;
   public perspectiveCamera: PerspectiveCamera = new PerspectiveCamera(
     75,
     innerWidth / innerHeight
   );
-  private orthographicCamera: OrthographicCamera = new OrthographicCamera(
+  public orthographicCamera: OrthographicCamera = new OrthographicCamera(
     innerWidth / -8,
     innerWidth / 8,
     innerHeight / 8,
@@ -30,7 +30,7 @@ class CameraMan {
 
   constructor() {
     this.currentCamera = this.perspectiveCamera;
-    this.currentCamera.position.set(100, 100, 100);
+    this.currentCamera.position.set(10, 0, 10);
     this.currentCamera.lookAt(...this.currentLookPoint);
 
     //== Adaptation of Windows =================================================
@@ -40,14 +40,16 @@ class CameraMan {
       this.perspectiveCamera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
     };
+
     onResize();
 
     addEventListener("resize", onResize, false);
 
+    this.resetControls();
     //== On Development ========================================================
-    if (import.meta.env.DEV) {
-      this.addHelpers(500);
-      this.resetControls();
+
+    if (!import.meta.env.DEV) {
+      this.addHelpers(50);
     }
   }
 
@@ -63,7 +65,7 @@ class CameraMan {
   private resetControls() {
     this.controls?.dispose();
     this.controls = undefined;
-    this.controls = new OrbitControls(this.currentCamera, canvas);
+    this.controls ??= new OrbitControls(this.currentCamera, canvas);
     this.controls.dampingFactor = 1;
     this.controls.enableDamping = true;
   }
@@ -145,6 +147,6 @@ class CameraMan {
   }
 }
 
-const director = new CameraMan();
+const cameraMan = new CameraMan();
 
-export default director;
+export default cameraMan;
