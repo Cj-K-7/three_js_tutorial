@@ -1,8 +1,7 @@
 import { scene } from "../../core";
-import AdvancedPoints from "./advancedPoints";
-import AdvancedMesh from "./advancedMesh";
+import MeshObject from "./1.MeshObject";
 
-type ObjectModel = AdvancedMesh | AdvancedPoints;
+type ObjectModel = MeshObject;
 
 class ObjectManager extends Set<ObjectModel> {
   /**

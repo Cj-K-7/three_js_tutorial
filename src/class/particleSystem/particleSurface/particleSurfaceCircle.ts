@@ -19,10 +19,19 @@ import {
 import vertexShader from "./shader/vertext.glsl?raw";
 import fragmentShader from "./shader/fragment.glsl?raw";
 import particle from "../../../assets/imgs/particle.webp";
-import AdvancedMesh from "../../objectSystem/advancedMesh";
+import MeshObject from "../../objectSystem/1.MeshObject";
 import { lerp } from "three/src/math/MathUtils";
 import { scene } from "../../../core";
 import cameraMan from "../../cameraMan";
+
+export interface ParticleSurfaceCircleParameters {
+  min_radius: number;
+  max_radius: number;
+  particleSize: number;
+  numberOfParticle: number;
+  spread: number;
+  color: ColorRepresentation;
+}
 
 class ParticleSurfaceCircle {
   private clock: Clock;
@@ -34,22 +43,16 @@ class ParticleSurfaceCircle {
   private pointVec3: Vector3;
   public surfaceGeo: InstancedBufferGeometry;
   public material: ShaderMaterial;
-  public mesh: AdvancedMesh;
+  public mesh: MeshObject;
 
-  constructor(
-    min_radius: number,
-    max_radius: number,
-    particleSize: number,
-    particleCount: number,
-    amp: number,
-    color: ColorRepresentation
-  ) {
+  constructor(params: ParticleSurfaceCircleParameters) {
     const particleTexture = new TextureLoader().load(particle);
 
     this.raycaster = new Raycaster();
-    this.raycastGeo = new PlaneGeometry(max_radius * 2, max_radius * 2).rotateX(
-      -Math.PI / 2
-    );
+    this.raycastGeo = new PlaneGeometry(
+      params.max_radius * 2,
+      params.max_radius * 2
+    ).rotateX(-Math.PI / 2);
     this.pointVec2 = new Vector2();
     this.pointVec3 = new Vector3();
     this.clock = new Clock();
@@ -57,11 +60,11 @@ class ParticleSurfaceCircle {
     this.surfaceGeo = new InstancedBufferGeometry();
     this.material = new ShaderMaterial({
       uniforms: {
-        u_amp: { value: particleSize },
+        u_amp: { value: params.particleSize },
         u_time: { value: 0 },
-        u_speed: { value: amp },
+        u_speed: { value: params.spread },
         u_mouse: { value: new Vector3() },
-        u_color: { value: new Color(color) },
+        u_color: { value: new Color(params.color) },
         u_texture: { value: particleTexture },
       },
       side: DoubleSide,
@@ -82,10 +85,10 @@ class ParticleSurfaceCircle {
     );
 
     //set every point of surface's Position
-    this.particlesPos = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
+    this.particlesPos = new Float32Array(params.numberOfParticle * 3);
+    for (let i = 0; i < params.numberOfParticle; i++) {
       const t = Math.random() * 2 * Math.PI;
-      const r = lerp(min_radius, max_radius, Math.random());
+      const r = lerp(params.min_radius, params.max_radius, Math.random());
       const x = r * Math.sin(t);
       const y = (Math.random() - 0.5) * 0.1;
       const z = r * Math.cos(t);
@@ -99,9 +102,8 @@ class ParticleSurfaceCircle {
     );
 
     //create mesh
-    this.mesh = new AdvancedMesh(this.surfaceGeo, this.material);
+    this.mesh = new MeshObject(this.surfaceGeo, this.material);
 
-    this.raycasterEvent();
     this.mesh.renderOrder = 0;
 
     particleTexture.dispose();
@@ -118,9 +120,10 @@ class ParticleSurfaceCircle {
     scene.add(this.mesh);
   }
 
-  raycasterEvent() {
+  addRaycasterEvent() {
     let raycastArea = new Mesh(this.raycastGeo, new MeshBasicMaterial({}));
 
+    raycastArea.material.side = DoubleSide;
     window.addEventListener("pointermove", (event) => {
       this.pointVec2.x = (event.clientX / innerWidth) * 2 - 1;
       this.pointVec2.y = -(event.clientY / innerHeight) * 2 + 1;

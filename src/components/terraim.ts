@@ -5,7 +5,7 @@ import {
   Texture,
   TextureLoader,
 } from "three";
-import AdvancedMesh from "../class/objectSystem/advancedMesh";
+import MeshObject from "../class/objectSystem/1.MeshObject";
 import colorMapJpg from "../assets/imgs/Sand_COLOR.jpg";
 import normalMapJpg from "../assets/imgs/Sand_NRM.jpg";
 import dispMapJpg from "../assets/imgs/Sand_DISP.jpg";
@@ -36,7 +36,7 @@ const Terrain = () => {
   wrapAndRepeatTexture(material.aoMap!);
   // const material = new THREE.MeshPhongMaterial({ map: placeholder})
 
-  const terrain = new AdvancedMesh(geometry, material);
+  const terrain = new MeshObject(geometry, material);
   terrain.receiveShadow = true;
   terrain.rotation.x = -Math.PI / 2;
   terrain.receiveShadow = true;

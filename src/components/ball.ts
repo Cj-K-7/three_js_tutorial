@@ -4,7 +4,7 @@ import {
   Vector2,
   ColorRepresentation,
 } from "three";
-import AdvancedMesh from "../class/objectSystem/advancedMesh";
+import MeshObject from "../class/objectSystem/1.MeshObject";
 
 /**
  * Create physic material ball
@@ -16,25 +16,9 @@ import AdvancedMesh from "../class/objectSystem/advancedMesh";
  */
 const Ball = async (
   color: ColorRepresentation,
-  ...[
-    radius,
-    widthSegments = 64,
-    heightSegments = 64,
-    phiStart,
-    phiLengt,
-    thetaStart,
-    thetaLength,
-  ]: SphereGeometryParameters
-): Promise<AdvancedMesh> => {
-  const geometry = new SphereGeometry(
-    radius,
-    widthSegments,
-    heightSegments,
-    phiStart,
-    phiLengt,
-    thetaStart,
-    thetaLength
-  );
+  ...geometryParams: SphereGeometryParameters
+): Promise<MeshObject> => {
+  const geometry = new SphereGeometry(...geometryParams);
   const material = new MeshPhysicalMaterial({
     color,
     metalness: 1,
@@ -43,9 +27,7 @@ const Ball = async (
     clearcoatRoughness: 0,
     normalScale: new Vector2(0.15, 0.15),
   });
-  const ball = new AdvancedMesh(geometry, material);
-
-  await ball.addEnvmapTexture("blue_photo_studio_4k.hdr");
+  const ball = new MeshObject(geometry, material);
 
   return ball;
 };

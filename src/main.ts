@@ -6,7 +6,7 @@ import scenario1 from "./scenario";
 import scenario2 from "./scenario2";
 
 const scenarios = [scenario1, scenario2];
-const index = 1;
+const index = 0;
 const currentScenarios = scenarios[index];
 
 async function main() {

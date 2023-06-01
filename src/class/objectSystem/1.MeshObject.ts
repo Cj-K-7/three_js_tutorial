@@ -1,7 +1,5 @@
 import { renderer, scene } from "../../core";
 import {
-  CanvasTexture,
-  DataTexture,
   BufferGeometry,
   Material,
   MeshStandardMaterial,
@@ -10,21 +8,11 @@ import {
   Mesh,
   CubeCamera,
   WebGLCubeRenderTarget,
-  PMREMGenerator,
-  RepeatWrapping,
   CubeRefractionMapping,
   CubeReflectionMapping,
   LinearMipMapLinearFilter,
 } from "three";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
-import { FlakesTexture } from "three/examples/jsm/textures/FlakesTexture";
-
-const cubeCameraAvailables = [
-  "\n\tMeshStandardMaterial",
-  "\n\tMeshPhysicalMaterial",
-  "\n\tMeshPhongMaterial",
-];
-const instanceError = `\nit must be one of these Class instance \n\n [ ${cubeCameraAvailables} \n ]\n`;
+import { instanceError } from "./constant";
 
 const REFLECTION = () => CubeReflectionMapping;
 const REFRACTION = () => CubeRefractionMapping;
@@ -46,7 +34,7 @@ type CubeRenderTargetTextureType = typeof REFLECTION | typeof REFRACTION;
  *
  * @author K-CJ-7
  */
-class AdvancedMesh<
+class MeshObject<
   G extends BufferGeometry = BufferGeometry,
   M extends Material = Material
 > extends Mesh<G, M> {
@@ -86,7 +74,7 @@ class AdvancedMesh<
    * add `Reflection` texture on Material. must update frame of CubeCamera.
    * @param size default 256
    */
-  addRefelctions(size?: number) {
+  public addRefelctions(size?: number) {
     this.assignCubeRenderTarget(size, REFLECTION);
   }
 
@@ -94,52 +82,8 @@ class AdvancedMesh<
    * add `Refraction` texture on Material. must update frame of CubeCamera.
    * @param size default 256
    */
-  addRefractions(size?: number) {
+  public addRefractions(size?: number) {
     this.assignCubeRenderTarget(size, REFRACTION);
-  }
-
-  //TODO : update this to scene and use reflection instead.
-  /**
-   * Change physic material and Add texture to material with texture asset file
-   * @param textureFile
-   * @param material
-   */
-  async addEnvmapTexture(textureFile: string) {
-    const textureAssetPath = "/src/assets/textures/";
-    const textureLoader = new RGBELoader();
-    const envmapLoader = new PMREMGenerator(renderer);
-    textureLoader.setPath(textureAssetPath);
-
-    return new Promise<void>((resolve, reject) => {
-      const onLoad = (dataTexture: DataTexture) => {
-        if (
-          !(
-            this.material instanceof
-            (MeshStandardMaterial || MeshPhysicalMaterial || MeshPhongMaterial)
-          )
-        )
-          throw Error(
-            `This material is not supported for 'envMap' texture. ${instanceError}`
-          );
-        const normalMap = new CanvasTexture(new FlakesTexture());
-        const envMap = envmapLoader.fromCubemap(dataTexture as any).texture;
-        const material = this.material;
-        normalMap.repeat.set(RepeatWrapping, RepeatWrapping);
-        material.setValues({
-          normalMap,
-          envMap,
-        });
-        resolve();
-      };
-
-      const onProgress = () => {};
-
-      const onError = (error: ErrorEvent) => {
-        reject(error);
-      };
-
-      textureLoader.load(textureFile, onLoad, onProgress, onError);
-    });
   }
 
   /**
@@ -168,4 +112,4 @@ class AdvancedMesh<
   }
 }
 
-export default AdvancedMesh;
+export default MeshObject;
