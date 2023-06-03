@@ -30,7 +30,7 @@ class CameraMan {
 
   constructor() {
     this.currentCamera = this.perspectiveCamera;
-    this.currentCamera.position.set(10, 0, 10);
+    this.currentCamera.position.set(0, 5, 30);
     this.currentCamera.lookAt(...this.currentLookPoint);
 
     //== Adaptation of Windows =================================================
@@ -45,11 +45,11 @@ class CameraMan {
 
     addEventListener("resize", onResize, false);
 
-    this.resetControls();
     //== On Development ========================================================
 
-    if (!import.meta.env.DEV) {
-      this.addHelpers(50);
+    if (import.meta.env.DEV) {
+      this.resetOrbitControls();
+      this.addHelpers(10);
     }
   }
 
@@ -62,7 +62,7 @@ class CameraMan {
     scene.add(new AxesHelper(size / 2));
   }
 
-  private resetControls() {
+  resetOrbitControls() {
     this.controls?.dispose();
     this.controls = undefined;
     this.controls ??= new OrbitControls(this.currentCamera, canvas);
@@ -78,7 +78,7 @@ class CameraMan {
     const { x, y, z } = this.currentCamera.position;
     camera.position.set(x, y, z);
     this.currentCamera = camera;
-    this.resetControls();
+    this.resetOrbitControls();
   }
 
   /**

@@ -2,12 +2,10 @@ import useWebGLAvailability from "./hooks/useAvailability";
 import cameraMan from "./class/cameraMan";
 import LightSystem from "./class/lightSystem/lightSystem";
 import Tween from "@tweenjs/tween.js";
-import scenario1 from "./scenario";
-import scenario2 from "./scenario2";
+import scenario from "./scenario2";
+// import scenario2 from "./scenario2";
 
-const scenarios = [scenario1, scenario2];
-const index = 0;
-const currentScenarios = scenarios[index];
+const currentScenarios = scenario;
 
 async function main() {
   //== Models ==================================================================
@@ -15,12 +13,15 @@ async function main() {
 
   gaffer.addAmbientLight();
   gaffer.addDirectionLight();
+
   //== LifeCycles ==============================================================
+
   /**
    * intialize WebGL with THREE.js
    **/
   async function init() {
     await currentScenarios.initScenario();
+    cameraMan.resetOrbitControls();
   }
 
   /**

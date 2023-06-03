@@ -11,7 +11,6 @@ import {
 } from "three";
 import fragmentShader from "./shader/fragment.glsl?raw";
 import vertexShader from "./shader/vertex.glsl?raw";
-import { getVelocity } from "../../../utility/velocity";
 
 const coordCnt: number = 3;
 
@@ -40,8 +39,6 @@ class PathTracer {
   // PathTracer Props //=================================================
   /**Path. `PathTracer` will follow this path's positions */
   public path?: ParticlePath;
-  /**Duration. How many time will take one cycle of fiven `path`  */
-  public duration: number;
   /**`PathTracer`'s `number` of particles = `PathTracer`'s length*/
   private particlesNumber: number;
   /**`PathTracer`'s `coodinate3` of particles  */
@@ -53,8 +50,9 @@ class PathTracer {
 
   public geometry: BufferGeometry;
   public material: ShaderMaterial;
+  public pointMesh?: Points;
 
-  constructor(length: number, duration: number) {
+  constructor(length: number) {
     const isLengthInt = length % 1 === 0;
     if (!isLengthInt) throw Error("PathTracer : 'length' must be integer");
     this.geometry = new BufferGeometry();
@@ -74,15 +72,10 @@ class PathTracer {
         derivatives: true,
       },
     });
-    this.duration = duration;
     this.particlesNumber = length;
     this.particlesCoord3 = new Float32Array(this.particlesNumber * coordCnt);
     this.paticlesSize = new Float32Array(this.particlesNumber);
     this.paticlesOpacity = new Float32Array(this.particlesNumber);
-  }
-
-  get velocity() {
-    return getVelocity(this.duration, this.path!.numberOfPoints);
   }
 
   private setPath(numberOfPoints: number, coordinates: Coordinate3[]) {
@@ -140,8 +133,6 @@ class PathTracer {
   ) {
     if (this.path) {
       throw Error("PathTracer : Path is already set");
-    } else if (divider % 1 !== 0) {
-      throw Error("PathTracer : divider must be integer");
     } else {
       const realLength = svg.getTotalLength() / divider;
       const numberOfPoints = Math.floor(realLength);
@@ -189,9 +180,9 @@ class PathTracer {
    */
   activate() {
     if (this.path) {
-      const particles = new Points(this.geometry, this.material);
+      this.pointMesh = new Points(this.geometry, this.material);
       this.initGeoAtrs();
-      scene.add(particles);
+      scene.add(this.pointMesh);
     } else {
       throw Error("PathTracer : There is no `path` to trace. Please Add Path.");
     }
@@ -204,10 +195,9 @@ class PathTracer {
       this.particlesCoord3.set(p, i * 3);
     }
 
+    //loop 가 되게 끔 하는 구간 코드
     path.startPoint =
-      path.startPoint >= path.numberOfPoints
-        ? 0
-        : path.startPoint + this.velocity;
+      path.startPoint >= path.numberOfPoints ? 0 : path.startPoint + 1;
   }
 
   stop(path: ParticlePath) {
@@ -228,6 +218,7 @@ class PathTracer {
   }
 
   dispose() {
+    this.pointMesh?.clear();
     this.geometry.dispose();
     this.material.dispose();
   }

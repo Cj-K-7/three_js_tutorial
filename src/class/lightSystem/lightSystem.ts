@@ -29,7 +29,7 @@ class LightSystem extends Light {
   constructor() {
     super(...initialParameters);
     this.name = "Gaffer";
-    this.position.set(50, 50, 50);
+    this.position.set(10, 10, 10);
     scene.add(this);
   }
 
@@ -47,7 +47,7 @@ class LightSystem extends Light {
 
   addDirectionLight() {
     this.directionalLight = new DirectionalLight(0xffffff, 1);
-    this.directionalLight.position.set(-60, 100, -10);
+    this.directionalLight.position.set(-40, 100, -10);
     this.directionalLight.castShadow = true;
     this.directionalLight.shadow.camera.top = 50;
     this.directionalLight.shadow.camera.bottom = -50;

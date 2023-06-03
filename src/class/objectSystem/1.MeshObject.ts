@@ -12,6 +12,7 @@ import {
   CubeReflectionMapping,
   LinearMipMapLinearFilter,
 } from "three";
+import { Body as PhysicBody } from "cannon-es";
 import { instanceError } from "./constant";
 
 const REFLECTION = () => CubeReflectionMapping;
@@ -40,11 +41,32 @@ class MeshObject<
 > extends Mesh<G, M> {
   private cubeCamera?: CubeCamera;
   private cubeRenderTarget?: WebGLCubeRenderTarget;
+  public body?: PhysicBody;
 
   constructor(geometry: G, material: M) {
     super(geometry, material);
   }
 
+  private updatePhysics() {
+    if (!this.body) return;
+    this.position.set(
+      this.body.position.x,
+      this.body.position.y,
+      this.body.position.z
+    );
+    this.quaternion.set(
+      this.body.quaternion.x,
+      this.body.quaternion.y,
+      this.body.quaternion.z,
+      this.body.quaternion.w
+    );
+  }
+
+  public addPhysicBody(body: PhysicBody) {
+    this.body = body;
+  }
+
+  //add CubeCamera for reflection & refraction
   private assignCubeRenderTarget(
     size: number = 256,
     type: CubeRenderTargetTextureType
@@ -89,18 +111,21 @@ class MeshObject<
   /**
    * update : rendering this. you can reassign this method to render new animation or upate values.
    */
-  update() {
+  public update() {
     if (this.cubeCamera) {
       this.visible = false;
       this.cubeCamera.update(renderer, scene);
       this.visible = true;
+    }
+    if (this.body) {
+      this.updatePhysics();
     }
   }
 
   /**
    * dispose : clear this geometry, material and all childs, itself from parents
    */
-  dispose() {
+  public dispose() {
     this.geometry.dispose();
     this.material.dispose();
     this.cubeRenderTarget?.texture.dispose();

@@ -6,7 +6,7 @@ varying float vOpacity;
 void main(){
     vec2 uv = vec2(gl_PointCoord.x,1. - gl_PointCoord.y);
     vec2 cUV = 2.*uv - 1.;
-    vec3 originalColor = vec3(2./255.,30./255.,30./255.);
+    vec3 originalColor = vec3(60./255.,40./255.,10./255.);
     vec4 color = vec4(0.05/length(cUV));
 
     color.rgb = min(vec3(10.),color.rgb);

@@ -24,7 +24,7 @@ class ObjectManager extends Set<ObjectModel> {
   }
 
   removeAll() {
-    this.forEach(this.remove);
+    this.forEach((object) => object.dispose());
     this.clear();
   }
 

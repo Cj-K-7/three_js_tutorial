@@ -1,10 +1,9 @@
 import { Body, Plane, Sphere, Vec3, World } from "cannon-es";
 import CannonDebugger from "cannon-es-debugger";
 
-import { Mesh, Scene } from "three";
-import { scene } from "../../core";
+import { Scene } from "three";
 
-class WorldPhysics {
+class Physic {
   public world: World;
   public ground: Body;
   private debugger?: {
@@ -20,13 +19,12 @@ class WorldPhysics {
 
     this.world.addBody(this.ground);
 
-    this.debugger = CannonDebugger(scene, this.world);
     if (import.meta.env.DEV) {
+      this.debugger = CannonDebugger(scene, this.world);
     }
   }
 
-  createBody() {
-    const radius = 1;
+  createSphereBody(radius = 1) {
     const sphereBody = new Body({
       mass: 5,
       shape: new Sphere(radius),
@@ -41,4 +39,4 @@ class WorldPhysics {
   }
 }
 
-export default WorldPhysics;
+export default Physic;
