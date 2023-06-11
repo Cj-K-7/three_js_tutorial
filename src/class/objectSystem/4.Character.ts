@@ -1,11 +1,11 @@
 import { gltfLoader, scene } from "../../core";
 import { AnimationMixer, Camera, Clock, Group } from "three";
-import { CharacterControls } from "../physic/characterControls";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { KeyDisplay } from "../../utility/keyBinding";
+import { CharacterControl } from "./5.CharacterControls";
 
 class Character {
-  private controls?: CharacterControls;
+  private controls?: CharacterControl;
   private clock: Clock;
   private keysPressed = {};
   private keyDisplayQueue: KeyDisplay;
@@ -33,10 +33,10 @@ class Character {
           .filter((ani) => ani.name != "TPose")
           .forEach((ani) => animationsMap.set(ani.name, mixer.clipAction(ani)));
 
-        this.controls = new CharacterControls(
+        this.controls = new CharacterControl(
           this.model,
-          mixer,
           animationsMap,
+          mixer,
           orbitControls,
           camera,
           "Idle"
@@ -48,9 +48,11 @@ class Character {
       }
     );
 
-    //bindung key
+    //binding key
     this.keyDisplayQueue = new KeyDisplay();
+  }
 
+  addKeyControl() {
     document.addEventListener(
       "keydown",
       (event) => {

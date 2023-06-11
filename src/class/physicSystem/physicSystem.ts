@@ -3,7 +3,7 @@ import CannonDebugger from "cannon-es-debugger";
 
 import { Scene } from "three";
 
-class Physic {
+class PhysicSystem {
   public world: World;
   public ground: Body;
   private debugger?: {
@@ -39,4 +39,4 @@ class Physic {
   }
 }
 
-export default Physic;
+export default PhysicSystem;

@@ -2,7 +2,7 @@ import {
   AnimationAction,
   AnimationMixer,
   Camera,
-  Group,
+  Object3D,
   Quaternion,
   Vector3,
 } from "three";
@@ -10,10 +10,20 @@ import { A, D, DIRECTIONS, S, W, SPACE } from "../../utility/keyBinding";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import tween from "@tweenjs/tween.js";
 
-export class CharacterControls {
-  model: Group;
+/**
+ * @class CharacterControl
+ *
+ * add keyboard binding for character movement and camera movement
+ *
+ * @param {THREE.Object3D} model it will be character 3d model.
+ * @param {THREE.Object3D} animation it will be character 3d model.
+ * @param {THREE.AnimationMixer} mixer
+ * @param {THREE.Object3D} model it will be character 3d model.
+ */
+export class CharacterControl {
+  model: Object3D;
+  animation: Map<string, AnimationAction> = new Map(); // Walk, Run, Idle
   mixer: AnimationMixer;
-  animationsMap: Map<string, AnimationAction> = new Map(); // Walk, Run, Idle
   orbitControl: OrbitControls;
   camera: Camera;
 
@@ -34,18 +44,18 @@ export class CharacterControls {
   walkVelocity = 2;
 
   constructor(
-    model: Group,
+    model: Object3D,
+    animations: Map<string, AnimationAction>,
     mixer: AnimationMixer,
-    animationsMap: Map<string, AnimationAction>,
     orbitControl: OrbitControls,
     camera: Camera,
     currentAction: string
   ) {
     this.model = model;
     this.mixer = mixer;
-    this.animationsMap = animationsMap;
+    this.animation = animations;
     this.currentAction = currentAction;
-    this.animationsMap.forEach((value, key) => {
+    this.animation.forEach((value, key) => {
       if (key == currentAction) {
         value.play();
       }
@@ -71,8 +81,8 @@ export class CharacterControls {
     }
 
     if (this.currentAction != play) {
-      const toPlay = this.animationsMap.get(play);
-      const current = this.animationsMap.get(this.currentAction);
+      const toPlay = this.animation.get(play);
+      const current = this.animation.get(this.currentAction);
 
       current!.fadeOut(this.fadeDuration);
       toPlay!.reset().fadeIn(this.fadeDuration).play();

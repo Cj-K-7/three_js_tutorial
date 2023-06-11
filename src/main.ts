@@ -21,7 +21,6 @@ async function main() {
    **/
   async function init() {
     await currentScenarios.initScenario();
-    cameraMan.resetOrbitControls();
   }
 
   /**

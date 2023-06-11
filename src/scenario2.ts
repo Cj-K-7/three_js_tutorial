@@ -3,14 +3,14 @@ import { Color } from "three";
 import cameraMan from "./class/cameraMan";
 // import ObjectManager from "./class/objectSystem/2.ObjectManager";
 import Terrain from "./components/terraim";
-import Physic from "./class/physic/worldPhysics";
-import Character from "./class/loadSystem/Character";
+import PhysicSystem from "./class/physicSystem/physicSystem";
+import Character from "./class/objectSystem/4.Character";
 
 //Rule =========================================================================
 
 // 3D Objects must be declared as @[let]
 //== World setup ===============================================================
-const physic = new Physic(scene);
+const physic = new PhysicSystem(scene);
 // const objectManager = new ObjectManager();
 
 let terrain = Terrain();
@@ -30,15 +30,16 @@ let terrain = Terrain();
 //   }
 // }, 1000);
 
-let character = new Character(
-  "src/assets/model/Soldier.glb",
-  cameraMan.controls!,
-  cameraMan.currentCamera
-);
+let character: Character;
 
 async function initScenario() {
   scene.add(terrain);
   scene.background = new Color(0xa8def0);
+  character = new Character(
+    "src/assets/model/Soldier.glb",
+    cameraMan.controls!,
+    cameraMan.currentCamera
+  );
 }
 
 function updateScenario() {
