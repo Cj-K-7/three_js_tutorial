@@ -27,6 +27,7 @@ async function main() {
    * start update 3D rendering display
    */
   async function animate() {
+    currentScenarios.updateScenario();
     cameraMan.updateScene();
     currentScenarios.updateScenario();
     Tween.update();

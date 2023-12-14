@@ -5,12 +5,21 @@ import cameraMan from "./class/cameraMan";
 import Terrain from "./components/terraim";
 import PhysicSystem from "./class/physicSystem/physicSystem";
 import Character from "./class/objectSystem/4.Character";
+import ParticleSurfaceCircle from "./class/particleSystem/particleSurface/particleSurfaceCircle";
 
 //Rule =========================================================================
 
 // 3D Objects must be declared as @[let]
 //== World setup ===============================================================
 const physic = new PhysicSystem(scene);
+const particleSystem = new ParticleSurfaceCircle({
+  min_radius: 10,
+  max_radius: 20,
+  particleSize: 1,
+  numberOfParticle: 100,
+  spread: 1,
+  color: 0xffffff,
+});
 // const objectManager = new ObjectManager();
 
 let terrain = Terrain();
@@ -33,19 +42,12 @@ let terrain = Terrain();
 let character: Character;
 
 async function initScenario() {
-  scene.add(terrain);
-  scene.background = new Color(0xa8def0);
-  character = new Character(
-    "src/assets/model/Soldier.glb",
-    cameraMan.controls!,
-    cameraMan.currentCamera
-  );
+  particleSystem.activate();
+  scene.background = new Color(0x000000);
 }
 
 function updateScenario() {
-  physic.animate();
-  // objectManager.forEach((object) => object.update());
-  character.animate();
+  particleSystem.update();
 }
 
 const scenario = { initScenario, updateScenario };
